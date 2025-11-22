@@ -1,6 +1,8 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "@/lib/supabase/server";
-import { createPixPayment } from "@/lib/payments/pagarme";
+import { createPixCharge } from "@/lib/payments/openpix";
+import { sendEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -104,93 +106,86 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calcular split rules conforme origem
+    // Calcular split rules conforme origem (MODELO CARTEIRA: Sem split no Pagar.me/OpenPix direto)
+    // O valor integral vai para a PartyU e o split é feito virtualmente no banco de dados
+    // via webhook ou job.
+
     const amountInCents = Math.round(order.total_amount * 100);
     const processingFeeCents = Math.round((order.metadata as any)?.processing_fee ? Number((order.metadata as any).processing_fee) * 100 : 1200);
-    const splitRules: { recipient_id: string; amount: number; liable?: boolean; charge_processing_fee?: boolean }[] = [];
 
-    const partyuRecipient = process.env.PAGARME_PARTYU_RECIPIENT_ID;
-    const organizerRecipientDefault = process.env.PAGARME_ORGANIZER_DEFAULT_RECIPIENT_ID;
-    const resellerRecipientDefault = process.env.PAGARME_RESELLER_DEFAULT_RECIPIENT_ID;
+    // Definir metadados para o split virtual
+    const virtualSplitMetadata = {
+      order_id: order.id,
+      user_id: user.id,
+      origin: order.origin,
+      ticket_type_id: ticketTypeId,
+      resale_listing_id: resaleListingId,
+      // Informações para o split virtual
+      processing_fee_cents: processingFeeCents,
+      organizer_id: null as string | null, // Será preenchido abaixo
+      reseller_id: null as string | null, // Será preenchido abaixo
+    };
 
     if (order.origin === "primary") {
-      // Primária: preço do ticket vai para organizador; taxa fixa vai para PartyU
-      const ticketPortion = amountInCents - processingFeeCents;
-      if (!partyuRecipient) {
-        console.warn("PAGARME_PARTYU_RECIPIENT_ID não configurado; split será omitido.");
-      } else {
-        splitRules.push({
-          recipient_id: partyuRecipient,
-          amount: processingFeeCents,
-          liable: false,
-          charge_processing_fee: false,
-        });
-      }
-      if (organizerRecipientDefault) {
-        splitRules.push({
-          recipient_id: organizerRecipientDefault,
-          amount: ticketPortion,
-          liable: true,
-          charge_processing_fee: false,
-        });
-      } else {
-        console.warn("PAGARME_ORGANIZER_DEFAULT_RECIPIENT_ID não configurado; parte do organizador não será dividida.");
+      // Buscar organizador do evento
+      const { data: eventData } = await supabase
+        .from("events")
+        .select("organizer_id")
+        .eq("id", order.metadata.event_id)
+        .single();
+
+      if (eventData) {
+        virtualSplitMetadata.organizer_id = eventData.organizer_id;
       }
     } else {
-      // Revenda: comprador paga asking + taxa
-      // asking -> revendedor; taxa -> 60% organizador, 40% PartyU
-      const askingPrice = (order.metadata as any)?.asking_price ? Math.round(Number((order.metadata as any).asking_price) * 100) : amountInCents - processingFeeCents;
-      const feeToOrganizer = Math.round(processingFeeCents * 0.6);
-      const feeToPartyu = processingFeeCents - feeToOrganizer;
+      // Buscar revendedor e organizador
+      if (resaleListingId) {
+        const { data: listing } = await supabase
+          .from("resale_listings")
+          .select("seller_id, ticket_id")
+          .eq("id", resaleListingId)
+          .single();
 
-      if (resellerRecipientDefault) {
-        splitRules.push({
-          recipient_id: resellerRecipientDefault,
-          amount: askingPrice,
-          liable: true,
-          charge_processing_fee: false,
-        });
-      } else {
-        console.warn("PAGARME_RESELLER_DEFAULT_RECIPIENT_ID não configurado; parte do revendedor não será dividida.");
-      }
-      if (organizerRecipientDefault) {
-        splitRules.push({
-          recipient_id: organizerRecipientDefault,
-          amount: feeToOrganizer,
-          liable: false,
-          charge_processing_fee: false,
-        });
-      } else {
-        console.warn("PAGARME_ORGANIZER_DEFAULT_RECIPIENT_ID não configurado; parte do organizador na taxa não será dividida.");
-      }
-      if (partyuRecipient) {
-        splitRules.push({
-          recipient_id: partyuRecipient,
-          amount: feeToPartyu,
-          liable: false,
-          charge_processing_fee: false,
-        });
-      } else {
-        console.warn("PAGARME_PARTYU_RECIPIENT_ID não configurado; parte da PartyU na taxa não será dividida.");
+        if (listing) {
+          virtualSplitMetadata.reseller_id = listing.seller_id;
+
+          // Buscar organizador através do ticket
+          const { data: ticket } = await supabase
+            .from("user_tickets")
+            .select("event_id")
+            .eq("id", listing.ticket_id)
+            .single();
+
+          if (ticket) {
+            const { data: eventData } = await supabase
+              .from("events")
+              .select("organizer_id")
+              .eq("id", ticket.event_id)
+              .single();
+
+            if (eventData) {
+              virtualSplitMetadata.organizer_id = eventData.organizer_id;
+            }
+          }
+        }
       }
     }
 
-    // Criar pagamento PIX via Pagar.me com split (se configurado)
-    const pixPayment = await createPixPayment({
-      amount: amountInCents,
+    // Criar cobrança PIX via OpenPix
+    const pixCharge = await createPixCharge({
+      correlationID: order.id, // Usando ID do pedido como correlationID
+      value: amountInCents,
+      comment: `Pedido ${order.id} `,
       customer: {
         name: profile.full_name || user.email || "Cliente",
         email: user.email || "",
-        document: profile.phone || "00000000000", // Em produção, pedir CPF
+        taxID: profile.cpf_cnpj || undefined, // OpenPix valida CPF/CNPJ
+        phone: profile.phone || undefined,
       },
-      metadata: {
-        order_id: order.id,
-        user_id: user.id,
-        origin: order.origin,
-        ticket_type_id: ticketTypeId,
-        resale_listing_id: resaleListingId,
-      },
-      splitRules,
+      additionalInfo: [
+        { key: "order_id", value: order.id },
+        { key: "origin", value: order.origin },
+      ],
     });
 
     // Salvar transação no banco
@@ -199,20 +194,46 @@ export async function POST(request: NextRequest) {
     const { data: transaction, error: transactionError } =
       await serviceRoleClient.from("payment_transactions").insert({
         order_id: order.id,
-        external_id: pixPayment.id,
+        external_id: pixCharge.charge.correlationID,
         payment_type: "pix",
         amount: order.total_amount,
-        status: pixPayment.status === "paid" ? "paid" : "pending",
-        pix_qr_code: pixPayment.pix_qr_code || null,
-        pix_copy_paste: pixPayment.pix_copy_paste || null,
-        paid_at: pixPayment.status === "paid" ? new Date().toISOString() : null,
+        status: pixCharge.charge.status === "COMPLETED" ? "paid" : "pending", // OpenPix usa COMPLETED
+        pix_qr_code: pixCharge.charge.qrCodeImage || null,
+        pix_copy_paste: pixCharge.charge.brCode || null,
+        paid_at: pixCharge.charge.status === "COMPLETED" ? new Date().toISOString() : null,
         metadata: {
-          pagarme_id: pixPayment.id,
-          origin: order.origin,
-          ticket_type_id: ticketTypeId,
-          resale_listing_id: resaleListingId,
+          openpix_correlation_id: pixCharge.charge.correlationID,
+          openpix_payment_link: pixCharge.charge.paymentLinkUrl,
+          ...virtualSplitMetadata,
         },
       }).select().single();
+
+    if (transaction) {
+      // Send email to buyer
+      const buyerEmail = user.email;
+      if (buyerEmail) {
+        await sendEmail(
+          buyerEmail,
+          `Pagamento recebido - Pedido ${order.id}`,
+          `<p>Olá ${profile.full_name || 'Cliente'},</p><p>Seu pagamento de R$ ${order.total_amount.toFixed(2)} foi recebido com sucesso.</p>`
+        );
+      }
+      // Send email to organizer if organizer email available
+      if (virtualSplitMetadata.organizer_id) {
+        const { data: organizerProfile } = await supabase
+          .from('profiles')
+          .select('email, full_name')
+          .eq('id', virtualSplitMetadata.organizer_id)
+          .single();
+        if (organizerProfile?.email) {
+          await sendEmail(
+            organizerProfile.email,
+            `Novo pagamento - Evento ${order.id}`,
+            `<p>Olá ${organizerProfile.full_name || ''},</p><p>Um pagamento de R$ ${order.total_amount.toFixed(2)} foi realizado para o seu evento.</p>`
+          );
+        }
+      }
+    }
 
     if (transactionError) {
       console.error("Error saving transaction:", transactionError);
@@ -229,6 +250,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: message },
       { status: 500 },
+
     );
   }
 }

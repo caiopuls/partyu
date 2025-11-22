@@ -29,7 +29,27 @@ export async function GET(request: Request) {
       },
     );
 
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error) {
+      // Check if user is admin and redirect accordingly
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        // Redirect admins to /admin
+        if (profile?.role === "admin") {
+          return NextResponse.redirect(new URL("/admin", requestUrl.origin));
+        }
+      }
+    }
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin));

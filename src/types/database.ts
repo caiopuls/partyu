@@ -3,7 +3,24 @@ export type Profile = {
   full_name: string | null;
   avatar_url: string | null;
   phone: string | null;
-  role: "user" | "admin";
+  role: "user" | "admin" | "organizer";
+  status?: "pending" | "approved" | "rejected";
+  // Organizer-specific fields
+  person_type?: "pf" | "pj" | null; // Pessoa Física ou Jurídica
+  cpf_cnpj?: string | null; // CPF (PF) or CNPJ (PJ)
+  company_name?: string | null; // Razão social (for PJ)
+  responsible_person?: string | null; // Nome do responsável (for PJ)
+  event_plans?: string | null; // What events will they organize
+  address_street?: string | null;
+  address_number?: string | null;
+  address_complement?: string | null;
+  address_neighborhood?: string | null;
+  address_city?: string | null;
+  address_state?: string | null;
+  address_zip?: string | null;
+  // Tracking fields
+  last_ip?: string | null;
+  last_seen_at?: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -7,7 +7,11 @@ CREATE TABLE IF NOT EXISTS profiles (
   full_name TEXT,
   avatar_url TEXT,
   phone TEXT,
-  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'organizer')),
+  status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
+  cpf_cnpj TEXT,
+  pix_key TEXT,
+  pix_key_type TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

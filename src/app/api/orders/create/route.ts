@@ -4,8 +4,8 @@ import { z } from "zod";
 
 const createOrderSchema = z.object({
   event_id: z.string().uuid(),
-  ticket_type_id: z.string().uuid().optional(),
-  resale_listing_id: z.string().uuid().optional(),
+  ticket_type_id: z.string().uuid().nullable().optional(),
+  resale_listing_id: z.string().uuid().nullable().optional(),
   origin: z.enum(["primary", "resale"]),
 });
 
@@ -24,15 +24,27 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
+
+    const getOptionalString = (key: string) => {
+      const value = formData.get(key);
+      if (!value || value === "null" || value === "undefined" || (typeof value === "string" && value.trim() === "")) {
+        return null;
+      }
+      return value as string;
+    };
+
     const data = {
       event_id: formData.get("event_id") as string,
-      ticket_type_id: formData.get("ticket_type_id") as string | null,
-      resale_listing_id: formData.get("resale_listing_id") as string | null,
+      ticket_type_id: getOptionalString("ticket_type_id"),
+      resale_listing_id: getOptionalString("resale_listing_id"),
       origin: formData.get("origin") as "primary" | "resale",
     };
 
+    console.log("Order Create Data:", data);
+
     const parsed = createOrderSchema.safeParse(data);
     if (!parsed.success) {
+      console.error("Order Validation Error:", parsed.error.issues);
       return NextResponse.json(
         { error: "Dados inválidos", details: parsed.error.issues },
         { status: 400 },

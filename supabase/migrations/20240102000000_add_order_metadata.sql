@@ -7,3 +7,4 @@ CREATE INDEX IF NOT EXISTS idx_orders_metadata ON orders USING GIN (metadata);
 
 
 
+

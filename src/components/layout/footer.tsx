@@ -169,7 +169,7 @@ export function SiteFooter() {
           <p>© {new Date().getFullYear()} PartyU. Todos os direitos reservados.</p>
           <p>
             Pagamentos processados com PIX via{" "}
-            <span className="font-medium text-foreground">Pagar.me</span>.
+            <span className="font-medium text-foreground">OpenPix</span>.
           </p>
         </div>
       </div>

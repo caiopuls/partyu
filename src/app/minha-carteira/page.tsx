@@ -5,6 +5,8 @@ import { Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+import { WithdrawalForm } from "@/components/wallet/withdrawal-form";
+
 async function getWallet(userId: string) {
   const supabase = await createSupabaseServerClient();
 
@@ -39,6 +41,24 @@ async function getWalletLedger(userId: string) {
   return data || [];
 }
 
+async function getWithdrawals(userId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("withdrawals")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    console.error("Error fetching withdrawals:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
 export default async function MinhaCarteiraPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -51,6 +71,8 @@ export default async function MinhaCarteiraPage() {
 
   const wallet = await getWallet(user.id);
   const ledger = await getWalletLedger(user.id);
+
+  const withdrawals = await getWithdrawals(user.id);
 
   if (!wallet) {
     return (
@@ -95,97 +117,158 @@ export default async function MinhaCarteiraPage() {
             <CardTitle className="text-lg">Ações rápidas</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              Em breve você poderá solicitar saque do seu saldo diretamente
-              para sua conta bancária.
-            </p>
+            <WithdrawalForm balance={wallet.balance} />
             <div className="rounded-lg border border-border/60 bg-muted/50 p-3">
               <p className="text-xs font-medium">Como funciona</p>
               <ul className="mt-2 space-y-1 text-[11px] text-muted-foreground">
                 <li>• Você recebe dinheiro ao vender ingressos</li>
                 <li>• Use o saldo para comprar novos ingressos</li>
-                <li>• Solicite saque quando quiser (em breve)</li>
+                <li>• Solicite saque quando quiser (mínimo R$ 10,00)</li>
               </ul>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-lg">Histórico de transações</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {ledger.length > 0 ? (
-            <div className="space-y-3">
-              {ledger.map((entry) => {
-                const isCredit = entry.amount > 0;
-                const typeLabels: Record<string, string> = {
-                  sale_commission: "Comissão PartyU",
-                  ticket_sale: "Venda de ingresso",
-                  withdraw: "Saque",
-                  refund: "Reembolso",
-                  adjustment: "Ajuste",
-                };
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Histórico de transações</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {ledger.length > 0 ? (
+              <div className="space-y-3">
+                {ledger.map((entry) => {
+                  const isCredit = entry.amount > 0;
+                  const typeLabels: Record<string, string> = {
+                    sale_commission: "Comissão PartyU",
+                    ticket_sale: "Venda de ingresso",
+                    withdraw: "Saque",
+                    refund: "Reembolso",
+                    adjustment: "Ajuste",
+                  };
 
-                return (
-                  <div
-                    key={entry.id}
-                    className="flex items-center justify-between rounded-lg border border-border/60 p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                          isCredit
+                  return (
+                    <div
+                      key={entry.id}
+                      className="flex items-center justify-between rounded-lg border border-border/60 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-full ${isCredit
                             ? "bg-emerald-50 text-emerald-600"
                             : "bg-red-50 text-red-600"
-                        }`}
-                      >
-                        {isCredit ? (
-                          <ArrowDownRight className="h-5 w-5" />
-                        ) : (
-                          <ArrowUpRight className="h-5 w-5" />
-                        )}
+                            }`}
+                        >
+                          {isCredit ? (
+                            <ArrowDownRight className="h-5 w-5" />
+                          ) : (
+                            <ArrowUpRight className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {typeLabels[entry.type] || entry.type}
+                          </p>
+                          {entry.description && (
+                            <p className="text-xs text-muted-foreground">
+                              {entry.description}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-muted-foreground">
+                            {format(
+                              new Date(entry.created_at),
+                              "d 'de' MMM 'às' HH'h'mm",
+                              { locale: ptBR },
+                            )}
+                          </p>
+                        </div>
                       </div>
+                      <div className="text-right">
+                        <p
+                          className={`text-sm font-semibold ${isCredit ? "text-emerald-600" : "text-red-600"
+                            }`}
+                        >
+                          {isCredit ? "+" : "-"}R${" "}
+                          {Math.abs(entry.amount).toFixed(2).replace(".", ",")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhuma transação ainda
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Solicitações de Saque</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {withdrawals.length > 0 ? (
+              <div className="space-y-3">
+                {withdrawals.map((withdrawal) => {
+                  const statusColors: Record<string, string> = {
+                    pending: "text-yellow-600 bg-yellow-50",
+                    approved: "text-blue-600 bg-blue-50",
+                    rejected: "text-red-600 bg-red-50",
+                    completed: "text-emerald-600 bg-emerald-50",
+                  };
+                  const statusLabels: Record<string, string> = {
+                    pending: "Pendente",
+                    approved: "Aprovado",
+                    rejected: "Rejeitado",
+                    completed: "Concluído",
+                  };
+
+                  return (
+                    <div
+                      key={withdrawal.id}
+                      className="flex items-center justify-between rounded-lg border border-border/60 p-4"
+                    >
                       <div>
                         <p className="text-sm font-medium">
-                          {typeLabels[entry.type] || entry.type}
+                          Saque via PIX ({withdrawal.pix_key_type})
                         </p>
-                        {entry.description && (
-                          <p className="text-xs text-muted-foreground">
-                            {entry.description}
-                          </p>
-                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {withdrawal.pix_key}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">
                           {format(
-                            new Date(entry.created_at),
+                            new Date(withdrawal.created_at),
                             "d 'de' MMM 'às' HH'h'mm",
                             { locale: ptBR },
                           )}
                         </p>
                       </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold">
+                          R$ {withdrawal.amount.toFixed(2).replace(".", ",")}
+                        </p>
+                        <span
+                          className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[withdrawal.status] || "text-gray-600 bg-gray-50"
+                            }`}
+                        >
+                          {statusLabels[withdrawal.status] || withdrawal.status}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p
-                        className={`text-sm font-semibold ${
-                          isCredit ? "text-emerald-600" : "text-red-600"
-                        }`}
-                      >
-                        {isCredit ? "+" : "-"}R${" "}
-                        {Math.abs(entry.amount).toFixed(2).replace(".", ",")}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Nenhuma transação ainda
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                Nenhum saque solicitado
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -25,6 +25,7 @@ export function PaymentPixComponent({
   );
   const [loading, setLoading] = useState(!initialTransaction);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,13 +43,13 @@ export function PaymentPixComponent({
       // Buscar informações do pedido para passar ticket_type_id ou resale_listing_id
       const orderResponse = await fetch(`/api/orders/${orderId}/details`);
       const orderData = await orderResponse.json().catch(() => null);
-      
+
       const response = await fetch(`/api/payments/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           orderId,
           ticket_type_id: orderData?.ticket_type_id,
           resale_listing_id: orderData?.resale_listing_id,
@@ -81,6 +82,10 @@ export function PaymentPixComponent({
         if (data.status === "paid") {
           clearInterval(interval);
           router.push(`/pedido/${orderId}/sucesso`);
+        } else if (data.status === "failed") {
+          clearInterval(interval);
+          setError("O pagamento falhou. Verifique se o PIX está habilitado na sua conta Pagar.me ou tente novamente.");
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error checking payment status:", error);
@@ -106,15 +111,19 @@ export function PaymentPixComponent({
     );
   }
 
-  if (!paymentTransaction) {
+  if (!paymentTransaction || error) {
     return (
       <Card>
         <CardContent className="p-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Erro ao gerar pagamento. Tente novamente.
+            {error || "Erro ao gerar pagamento. Tente novamente."}
           </p>
           <Button
-            onClick={createPayment}
+            onClick={() => {
+              setError(null);
+              setPaymentTransaction(undefined);
+              createPayment();
+            }}
             className="mt-4 rounded-full"
           >
             Tentar novamente
