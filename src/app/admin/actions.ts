@@ -34,6 +34,7 @@ export interface AdminOrganizerRequest {
     address_state: string;
     address_zip: string;
     created_at: string;
+    status?: string;
 }
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
@@ -62,7 +63,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
         return {
             ...profile,
             email: authUser?.email || "N/A",
-            last_ip: authUser?.last_sign_in_ip, // Assuming we want this if available
+            last_ip: (authUser as any)?.last_sign_in_ip, // Assuming we want this if available
         };
     });
 
@@ -231,6 +232,7 @@ export async function getDashboardCharts() {
 
     return {
         salesData: salesByDay,
+        newUsersData: newUsersByDay,
     };
 }
 
