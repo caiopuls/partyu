@@ -10,6 +10,8 @@ export async function createSupabaseServerClient() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anon) {
+    // Allow mock values during build to prevent build failures
+    // In production, this will cause runtime errors if env vars are truly missing
     console.warn("Supabase env missing in server client. Using mock values for build.");
     return createServerClient(
       url || "https://example.supabase.co",
@@ -21,11 +23,11 @@ export async function createSupabaseServerClient() {
           },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           set(name: string, value: string, options: any) {
-            // No-op for mock
+            try { cookieStore.set({ name, value, ...options }); } catch { }
           },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           remove(name: string, options: any) {
-            // No-op for mock
+            try { cookieStore.set({ name, value: "", ...options }); } catch { }
           },
         },
       },

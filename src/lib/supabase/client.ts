@@ -17,5 +17,3 @@ export function createSupabaseBrowserClient() {
 
 // Alias for convenience
 export const createClient = createSupabaseBrowserClient;
-
-
