@@ -52,40 +52,40 @@ export default async function Home() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-      <section className="relative flex flex-col items-center justify-center gap-10 text-center pt-16 pb-16 sm:pt-24 sm:pb-24 overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center gap-6 sm:gap-10 text-center pt-12 pb-12 sm:pt-24 sm:pb-24 px-4 sm:px-0 overflow-hidden">
         {/* Gradiente diagonal animado */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3 animate-gradient-diagonal pointer-events-none" />
-        <div className="relative space-y-6 max-w-3xl opacity-0 animate-[fadeInUp_0.8s_ease-out_forwards]">
-          <Badge className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium uppercase tracking-[0.18em] text-primary">
-            <Sparkles className="h-4 w-4" />
-            Revenda oficial e segura de ingressos
+        <div className="relative space-y-4 sm:space-y-6 max-w-3xl w-full opacity-0 animate-[fadeInUp_0.8s_ease-out_forwards]">
+          <Badge className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 sm:px-3 py-1 text-xs sm:text-sm font-medium uppercase tracking-[0.15em] sm:tracking-[0.18em] text-primary break-words sm:whitespace-nowrap max-w-full">
+            <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="break-words">Revenda oficial e segura de ingressos</span>
           </Badge>
-          <div className="space-y-4">
-            <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl bg-linear-to-r from-primary via-fuchsia-500 to-primary bg-clip-text text-transparent animate-gradient-slow">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-balance text-3xl sm:text-4xl lg:text-6xl font-semibold tracking-tight px-2 sm:px-0 bg-linear-to-r from-primary via-fuchsia-500 to-primary bg-clip-text text-transparent animate-gradient-slow">
               Compre e revenda ingressos com o PartyU.
             </h1>
-            <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mx-auto max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground sm:text-lg px-2 sm:px-0">
               Uma plataforma única para todos os seus eventos, pensado
               para revenda segura: o evento, o revendedor e o comprador
               conectados no mesmo lugar, com pagamentos no PIX.
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 px-2 sm:px-0">
             <Button
-              className="h-11 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+              className="h-10 sm:h-11 rounded-full bg-primary text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 w-full sm:w-auto"
               asChild
             >
-              <Link href="/anunciar">
+              <Link href="/anunciar" className="flex items-center justify-center">
                 <TicketPercent className="mr-2 h-4 w-4" />
                 Anunciar ingresso
               </Link>
             </Button>
             <Button
               variant="outline"
-              className="h-11 rounded-full border-border/70 text-sm font-semibold text-foreground hover:bg-muted"
+              className="h-10 sm:h-11 rounded-full border-border/70 text-xs sm:text-sm font-semibold text-foreground hover:bg-muted w-full sm:w-auto"
               asChild
             >
-              <Link href="/explorar">
+              <Link href="/explorar" className="flex items-center justify-center">
                 Explorar Festas & Eventos
               </Link>
             </Button>

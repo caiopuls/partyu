@@ -165,7 +165,7 @@ export function SiteHeader() {
               </Button>
             </SheetTrigger>
               <SheetContent side="right" className="w-72 sm:w-80">
-                <SheetHeader className="mb-4 mt-2 items-start text-left">
+                <SheetHeader className="mb-4 mt-2 items-start text-left px-3.5 sm:px-5">
                   <SheetTitle className="flex items-center gap-2 text-base font-semibold tracking-[0.16em] text-foreground/80">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <TicketPercent className="h-4 w-4" />
@@ -178,7 +178,7 @@ export function SiteHeader() {
                   </p>
                 </SheetHeader>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 px-3.5 sm:px-5">
                   <nav className="flex flex-col gap-2 text-base">
                     {navLinks.map((link) => {
                       const Icon = link.icon;
@@ -186,7 +186,7 @@ export function SiteHeader() {
                         <Link
                           key={link.href}
                           href={link.href}
-                          className="flex items-center gap-2 rounded-xl px-2 py-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          className="flex items-center gap-2 rounded-xl px-2.5 py-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                           <Icon className="h-4 w-4" />
                           {link.label}
@@ -198,7 +198,7 @@ export function SiteHeader() {
                   <div className="mt-2 flex flex-col gap-2">
                     <Button
                       variant="outline"
-                      className="h-9 justify-start gap-2 rounded-full border-primary/30 text-sm font-medium text-primary hover:bg-primary/5 hover:text-primary"
+                      className="h-9 justify-start gap-2 rounded-full border-primary/30 px-2.5 text-sm font-medium text-primary hover:bg-primary/5 hover:text-primary"
                       asChild
                     >
                       <Link href="/anunciar">
@@ -210,7 +210,7 @@ export function SiteHeader() {
                       <>
                         <Button
                           variant="ghost"
-                          className="h-9 justify-start gap-2 rounded-full text-sm font-medium"
+                          className="h-9 justify-start gap-2 rounded-full px-2.5 text-sm font-medium"
                           asChild
                         >
                           <Link href="/minha-conta">
@@ -220,7 +220,7 @@ export function SiteHeader() {
                         </Button>
                         <Button
                           variant="ghost"
-                          className="h-9 justify-start gap-2 rounded-full text-sm font-medium"
+                          className="h-9 justify-start gap-2 rounded-full px-2.5 text-sm font-medium"
                           asChild
                         >
                           <Link href="/meus-ingressos">
@@ -230,7 +230,7 @@ export function SiteHeader() {
                         </Button>
                         <Button
                           variant="ghost"
-                          className="h-9 justify-start gap-2 rounded-full text-sm font-medium"
+                          className="h-9 justify-start gap-2 rounded-full px-2.5 text-sm font-medium"
                           asChild
                         >
                           <Link href="/minha-carteira">
@@ -240,7 +240,7 @@ export function SiteHeader() {
                         </Button>
                         <Button
                           variant="ghost"
-                          className="h-9 justify-start gap-2 rounded-full text-sm font-medium text-destructive"
+                          className="h-9 justify-start gap-2 rounded-full px-2.5 text-sm font-medium text-destructive"
                           onClick={handleSignOut}
                         >
                           <LogOut className="h-4 w-4" />
@@ -249,7 +249,7 @@ export function SiteHeader() {
                       </>
                     ) : (
                       <Button
-                        className="h-9 justify-start gap-2 rounded-full bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                        className="h-9 justify-start gap-2 rounded-full bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                         asChild
                       >
                         <Link href="/entrar">

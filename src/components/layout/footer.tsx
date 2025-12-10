@@ -119,7 +119,7 @@ export function SiteFooter() {
             </h3>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="https://instagram.com"
+                href="https://www.instagram.com/partyubr_?igsh=d3dqamlkbGM3NWcw"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background text-muted-foreground transition-all hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
