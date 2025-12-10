@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Menu, TicketPercent, User2, LogOut, Wallet, Ticket, Search, ArrowLeftRight, HelpCircle, Settings } from "lucide-react";
 
@@ -49,15 +50,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-[0_0_0_1px_rgba(164,120,255,0.2)]">
-            <TicketPercent className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-base font-semibold tracking-[0.16em] text-foreground/70">
-              PARTYU
-            </span>
-          </div>
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0 min-w-fit">
+          <Image
+            src="/logo-partyu.svg"
+            alt="PartyU"
+            width={120}
+            height={36}
+            className="h-9 w-[120px] object-contain flex-shrink-0"
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center gap-6 text-base text-muted-foreground md:flex">
@@ -166,11 +167,15 @@ export function SiteHeader() {
             </SheetTrigger>
               <SheetContent side="right" className="w-72 sm:w-80">
                 <SheetHeader className="mb-4 mt-2 items-start text-left px-3.5 sm:px-5">
-                  <SheetTitle className="flex items-center gap-2 text-base font-semibold tracking-[0.16em] text-foreground/80">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <TicketPercent className="h-4 w-4" />
-                    </span>
-                    PARTYU
+                  <SheetTitle className="flex items-center gap-2 -ml-1">
+                    <Image
+                      src="/logo-partyu.svg"
+                      alt="PartyU"
+                      width={100}
+                      height={30}
+                      className="h-7 w-auto object-contain"
+                      priority
+                    />
                   </SheetTitle>
                   <p className="text-sm text-muted-foreground">
                     Sua carteira digital de ingressos para festas, shows e
