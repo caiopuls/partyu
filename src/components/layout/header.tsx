@@ -54,9 +54,9 @@ export function SiteHeader() {
           <Image
             src="/logo-partyu.svg"
             alt="PartyU"
-            width={120}
-            height={36}
-            className="h-9 w-[120px] object-contain flex-shrink-0"
+            width={110}
+            height={33}
+            className="h-8 w-[110px] object-contain flex-shrink-0"
             priority
           />
         </Link>
@@ -171,13 +171,13 @@ export function SiteHeader() {
                     <Image
                       src="/logo-partyu.svg"
                       alt="PartyU"
-                      width={100}
-                      height={30}
-                      className="h-7 w-auto object-contain"
+                      width={90}
+                      height={27}
+                      className="h-6 w-auto object-contain"
                       priority
                     />
                   </SheetTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mt-2">
                     Sua carteira digital de ingressos para festas, shows e
                     festivais.
                   </p>
