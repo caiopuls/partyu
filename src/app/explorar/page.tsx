@@ -155,11 +155,17 @@ export default async function ExplorarPage({
             if (params.de) qs.set("de", params.de);
             if (params.ate) qs.set("ate", params.ate);
             const href = qs.toString() ? `/explorar?${qs.toString()}` : "/explorar";
+            const isActive = params.categoria === category.value || (!params.categoria && category.value === "");
+            
             return (
               <Link
                 key={category.name}
                 href={href}
-                className="group inline-flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full border border-border/80 bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-[0_1px_0_rgba(15,23,42,0.04)] transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:bg-primary/5 hover:text-foreground hover:shadow-lg"
+                className={`group inline-flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium shadow-[0_1px_0_rgba(15,23,42,0.04)] transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  isActive
+                    ? "border-primary/60 bg-primary/10 text-foreground"
+                    : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                }`}
               >
                 <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
                 <span className="whitespace-nowrap">{category.name}</span>

@@ -22,18 +22,18 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollRow } from "@/components/categories/scroll-row";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getEventsByRegion } from "@/lib/supabase/queries";
+import { getEventsByFilters } from "@/lib/supabase/queries";
 
 const categories = [
-  { name: "Todos", icon: Grid3x3 },
-  { name: "Festas", icon: PartyPopper },
-  { name: "Shows", icon: Mic },
-  { name: "Festivais", icon: Music },
-  { name: "Eletrônica", icon: Radio },
-  { name: "Sertanejo", icon: Guitar },
-  { name: "Trap & Rap", icon: Headphones },
-  { name: "Universitárias", icon: GraduationCap },
-  { name: "Teatro", icon: Theater },
+  { name: "Todos", icon: Grid3x3, value: "" },
+  { name: "Festas", icon: PartyPopper, value: "Festas" },
+  { name: "Shows", icon: Mic, value: "Shows" },
+  { name: "Festivais", icon: Music, value: "Festivais" },
+  { name: "Eletrônica", icon: Radio, value: "Eletrônica" },
+  { name: "Sertanejo", icon: Guitar, value: "Sertanejo" },
+  { name: "Trap & Rap", icon: Headphones, value: "Trap & Rap" },
+  { name: "Universitárias", icon: GraduationCap, value: "Universitárias" },
+  { name: "Teatro", icon: Theater, value: "Teatro" },
 ];
 
 function formatEventDate(dateString: string) {
@@ -45,10 +45,18 @@ function formatEventDate(dateString: string) {
   }
 }
 
-export default async function Home() {
-  // Por enquanto, buscar eventos sem filtro de região
-  // Em produção, usar IP geolocation ou seleção manual do usuário
-  const events = await getEventsByRegion(undefined, undefined, 12);
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoria?: string }>;
+}) {
+  const params = await searchParams;
+  
+  // Buscar eventos com filtro de categoria (se houver)
+  const events = await getEventsByFilters({
+    category: params.categoria || undefined,
+    limit: 12,
+  });
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
@@ -102,15 +110,24 @@ export default async function Home() {
         <ScrollRow>
           {categories.map((category) => {
             const Icon = category.icon;
+            const qs = new URLSearchParams();
+            if (category.value) qs.set("categoria", category.value);
+            const href = qs.toString() ? `/?${qs.toString()}` : "/";
+            const isActive = params.categoria === category.value || (!params.categoria && category.value === "");
+            
             return (
-              <button
+              <Link
                 key={category.name}
-                className="group inline-flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full border border-border/80 bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-[0_1px_0_rgba(15,23,42,0.04)] transition-all duration-300 hover:scale-105 hover:border-primary/40 hover:bg-primary/5 hover:text-foreground hover:shadow-lg"
-                type="button"
+                href={href}
+                className={`group inline-flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium shadow-[0_1px_0_rgba(15,23,42,0.04)] transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  isActive
+                    ? "border-primary/60 bg-primary/10 text-foreground"
+                    : "border-border/80 bg-background text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                }`}
               >
                 <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
                 <span className="whitespace-nowrap">{category.name}</span>
-              </button>
+              </Link>
             );
           })}
         </ScrollRow>
