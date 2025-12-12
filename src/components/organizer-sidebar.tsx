@@ -41,17 +41,7 @@ export function OrganizerSidebar({ user }: OrganizerSidebarProps) {
         .slice(0, 2) || "OR";
 
     return (
-        <aside className="flex h-screen w-64 flex-col border-r bg-card">
-            {/* Logo & Title */}
-            <div className="flex h-16 items-center border-b px-6">
-                <div>
-                    <Link href="/organizer/dashboard" className="text-xl font-bold text-primary">
-                        PartyU
-                    </Link>
-                    <p className="text-xs text-muted-foreground">Painel de Organizador</p>
-                </div>
-            </div>
-
+        <aside className="sticky top-0 flex h-screen w-64 flex-col border-r bg-card">
             {/* Navigation */}
             <nav className="flex-1 space-y-1 p-4">
                 {navigation.map((item) => {
@@ -63,10 +53,10 @@ export function OrganizerSidebar({ user }: OrganizerSidebarProps) {
                             key={item.name}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                 isActive
-                                    ? "bg-primary text-primary-foreground"
-                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                    ? "bg-primary/10 text-primary shadow-sm"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             )}
                         >
                             <Icon className="h-5 w-5" />

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { createBrowserClient } from "@supabase/ssr"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,7 +22,10 @@ export default function WalletPage() {
     const [pixKey, setPixKey] = useState("")
     const [pixKeyType, setPixKeyType] = useState("cpf")
 
-    const supabase = createClient()
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
     useEffect(() => {
         fetchBalance()

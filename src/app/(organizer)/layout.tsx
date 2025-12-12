@@ -51,7 +51,7 @@ export default async function OrganizerLayout({
                     email: user.email || undefined,
                 }}
             />
-            <main className="flex-1 overflow-y-auto bg-background p-8">
+            <main className="flex-1 overflow-y-auto bg-gray-50/50 p-8">
                 {children}
             </main>
         </div>

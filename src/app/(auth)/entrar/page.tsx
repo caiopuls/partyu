@@ -2,12 +2,12 @@
 
 import { useState, Suspense } from "react";
 import { z } from "zod";
-import { Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, ArrowRight, PartyPopper } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const loginSchema = z.object({
@@ -54,124 +54,121 @@ function LoginForm() {
   }
 
   return (
-    <Card className="w-full border-border/70 bg-card/80 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-      <CardContent className="space-y-6 p-6 sm:p-8">
-        <div className="space-y-2 text-left">
-          <h1 className="text-lg font-semibold tracking-tight">
-            Entrar na sua conta PartyU
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Acompanhe seus ingressos, revendas e saldo da carteira em um só
-            lugar.
-          </p>
-        </div>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 py-12">
+      <div className="w-full max-w-md">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground" htmlFor="email">
-              E-mail
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="voce@exemplo.com"
-                autoComplete="email"
-                className="h-9 pl-8 text-xs"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              />
-            </div>
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm">
+          <div className="mb-6">
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">
+              Bem-vindo de volta!
+            </h1>
+            <p className="text-sm text-gray-600">
+              Entre para acessar seus ingressos e carteira
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <label
-              className="text-xs font-medium text-foreground"
-              htmlFor="password"
-            >
-              Senha
-            </label>
-            <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                className="h-9 pl-8 text-xs"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-              />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-900" htmlFor="email">
+                E-mail
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="voce@exemplo.com"
+                  autoComplete="email"
+                  className="h-12 pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                />
+              </div>
             </div>
-          </div>
 
-          {error && (
-            <p className="text-xs font-medium text-destructive">{error}</p>
-          )}
+            <div className="space-y-2">
+              <label
+                className="text-sm font-semibold text-gray-900"
+                htmlFor="password"
+              >
+                Senha
+              </label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  className="h-12 pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, password: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
 
-          <Button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Entrando...
-              </>
-            ) : (
-              <>
-                Entrar
-                <ArrowRight className="h-3.5 w-3.5" />
-              </>
+            <div className="text-right">
+              <Link
+                href="/recuperar-senha"
+                className="text-sm font-semibold text-primary hover:text-primary/80"
+              >
+                Esqueceu a senha?
+              </Link>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm font-medium text-red-600">{error}</p>
+              </div>
             )}
-          </Button>
-        </form>
 
-        <div className="space-y-2">
-          <p className="text-[11px] text-muted-foreground">
-            Ainda não tem conta?{" "}
-            <button
-              type="button"
-              className="font-medium text-primary underline-offset-2 hover:underline"
-              onClick={() => router.push("/criar-conta")}
+            <Button
+              type="submit"
+              className="flex w-full items-center cursor-pointer justify-center gap-2 h-12 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-all hover:scale-[1.02]"
+              disabled={isLoading}
             >
-              Criar conta
-            </button>
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Esqueceu sua senha?{" "}
-            <button
-              type="button"
-              className="font-medium text-primary underline-offset-2 hover:underline"
-              onClick={() => router.push("/recuperar-senha")}
-            >
-              Recuperar senha
-            </button>
-          </p>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                <>
+                  Entrar
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-600">
+              Ainda não tem conta?{" "}
+              <Link
+                href="/criar-conta"
+                className="font-bold text-primary hover:text-primary/80"
+              >
+                Criar conta grátis
+              </Link>
+            </p>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <Card className="w-full border-border/70 bg-card/80">
-        <CardContent className="p-6 sm:p-8">
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="min-h-screen bg-[#F8F8F3] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     }>
       <LoginForm />
     </Suspense>
   );
 }
-
-

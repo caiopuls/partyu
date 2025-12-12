@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { createBrowserClient } from "@supabase/ssr"
 import { Button } from "@/components/ui/button"
 import {
     Table,
@@ -16,7 +16,10 @@ import { Badge } from "@/components/ui/badge"
 export default function AdminWithdrawalsPage() {
     const [withdrawals, setWithdrawals] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const supabase = createClient()
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
     useEffect(() => {
         fetchWithdrawals()

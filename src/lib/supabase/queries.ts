@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "./server";
+import { createSupabaseServerClient, createSupabaseServiceRoleClient } from "./server";
 import type { Event, EventTicketType } from "@/types/database";
 
 export async function getEventsByRegion(
@@ -34,6 +34,25 @@ export async function getEventsByRegion(
   }
 
   return data as Event[];
+}
+
+export async function getOrganizerById(id: string) {
+  // Use service role client to bypass RLS policies on profiles table
+  // This allows public viewing of organizer profiles
+  const supabase = createSupabaseServiceRoleClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, bio, avatar_url")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching organizer:", error);
+    return null;
+  }
+
+  return data;
 }
 
 export async function getEventById(id: string) {
@@ -156,6 +175,25 @@ export async function getEventsByFilters(filters: EventFilters) {
     });
     return [] as Event[];
   }
+  return data as Event[];
+}
+
+export async function getEventsByOrganizer(organizerId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("organizer_id", organizerId)
+    .eq("status", "active")
+    .gte("event_date", new Date().toISOString())
+    .order("event_date", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching organizer events:", error);
+    return [];
+  }
+
   return data as Event[];
 }
 

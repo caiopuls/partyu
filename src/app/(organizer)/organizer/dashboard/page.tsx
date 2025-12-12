@@ -58,106 +58,120 @@ export default async function OrganizerDashboardPage() {
             </div>
 
             {/* Main Metrics */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="border-none shadow-md rounded-2xl bg-white/60 backdrop-blur-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Saldo Disponível</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold text-gray-600">Saldo Disponível</CardTitle>
+                        <div className="p-2 bg-green-100 rounded-lg">
+                            <DollarSign className="h-5 w-5 text-green-600" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-bold text-gray-900">
                             R$ {(Number(wallet?.balance || 0) / 100).toFixed(2).replace(".", ",")}
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500 mt-1">
                             Disponível para saque
                         </p>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-md rounded-2xl bg-white/60 backdrop-blur-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Vendido</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold text-gray-600">Total Vendido</CardTitle>
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <TrendingUp className="h-5 w-5 text-primary" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-bold text-gray-900">
                             R$ {(totalSales / 100).toFixed(2).replace(".", ",")}
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500 mt-1">
                             Receita total (bruto)
                         </p>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-md rounded-2xl bg-white/60 backdrop-blur-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Ingressos Vendidos</CardTitle>
-                        <Ticket className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold text-gray-600">Ingressos</CardTitle>
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <Ticket className="h-5 w-5 text-blue-600" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{ticketsSold || 0}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Total de tickets
+                        <div className="text-2xl font-bold text-gray-900">{ticketsSold || 0}</div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Vendidos até agora
                         </p>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-md rounded-2xl bg-white/60 backdrop-blur-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Eventos</CardTitle>
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold text-gray-600">Eventos</CardTitle>
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                            <Calendar className="h-5 w-5 text-orange-600" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{eventsCount || 0}</div>
-                        <p className="text-xs text-muted-foreground">
-                            {activeEventsCount || 0} ativos
+                        <div className="text-2xl font-bold text-gray-900">{eventsCount || 0}</div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {activeEventsCount || 0} ativos no momento
                         </p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Goals & Progress */}
-            <div className="grid gap-4 md:grid-cols-2">
-                <Card>
+            <div className="grid gap-6 md:grid-cols-2">
+                <Card className="border-none shadow-md rounded-2xl">
                     <CardHeader>
-                        <CardTitle>Meta de Vendas</CardTitle>
+                        <CardTitle className="text-gray-900">Meta de Vendas</CardTitle>
                         <CardDescription>
                             Progresso até R$ {(salesGoal / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-2">
-                        <Progress value={salesProgress} className="h-2" />
+                    <CardContent className="space-y-4">
+                        <Progress value={salesProgress} className="h-3 bg-gray-100" indicatorClassName="bg-primary" />
                         <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
+                            <span className="text-gray-600 font-medium">
                                 R$ {(totalSales / 100).toFixed(2).replace(".", ",")}
                             </span>
-                            <span className="font-medium">{salesProgress.toFixed(0)}%</span>
+                            <span className="font-bold text-primary">{salesProgress.toFixed(0)}%</span>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="border-none shadow-md rounded-2xl bg-gradient-to-br from-white to-gray-50">
                     <CardHeader>
-                        <CardTitle>Próximos Passos</CardTitle>
-                        <CardDescription>Ações recomendadas</CardDescription>
+                        <CardTitle className="text-gray-900">Próximos Passos</CardTitle>
+                        <CardDescription>O que fazer agora ?</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <ul className="space-y-2 text-sm">
+                        <ul className="space-y-3 text-sm">
                             {eventsCount === 0 && (
-                                <li className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-primary" />
-                                    <span>Crie seu primeiro evento</span>
+                                <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                                    <div className="p-1.5 bg-primary/10 rounded-md">
+                                        <Calendar className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <span className="font-medium text-gray-700">Crie seu primeiro evento</span>
                                 </li>
                             )}
                             {(wallet?.balance || 0) > 5000 && (
-                                <li className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4 text-green-600" />
-                                    <span>Você tem saldo disponível para saque</span>
+                                <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                                    <div className="p-1.5 bg-green-100 rounded-md">
+                                        <DollarSign className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <span className="font-medium text-gray-700">Realizar saque disponível</span>
                                 </li>
                             )}
-                            <li className="flex items-center gap-2">
-                                <BarChart3 className="h-4 w-4 text-blue-600" />
-                                <span>Confira seus relatórios de vendas</span>
+                            <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                                <div className="p-1.5 bg-blue-100 rounded-md">
+                                    <BarChart3 className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">Ver relatórios detalhados</span>
                             </li>
                         </ul>
                     </CardContent>
@@ -165,15 +179,21 @@ export default async function OrganizerDashboardPage() {
             </div>
 
             {/* Recent Activity */}
-            <Card>
+            <Card className="border-none shadow-md rounded-2xl">
                 <CardHeader>
-                    <CardTitle>Atividade Recente</CardTitle>
-                    <CardDescription>Últimas vendas e movimentações</CardDescription>
+                    <CardTitle className="text-gray-900">Atividade Recente</CardTitle>
+                    <CardDescription>Acompanhe suas últimas vendas em tempo real</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                        Nenhuma atividade recente para exibir.
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                        <BarChart3 className="h-10 w-10 text-gray-300 mb-3" />
+                        <p className="text-sm font-medium text-gray-500">
+                            Nenhuma atividade recente para exibir.
+                        </p>
+                        <p className="text-xs text-gray-400 max-w-xs mt-1">
+                            Suas vendas aparecerão aqui assim que começarem a acontecer.
+                        </p>
+                    </div>
                 </CardContent>
             </Card>
         </div>

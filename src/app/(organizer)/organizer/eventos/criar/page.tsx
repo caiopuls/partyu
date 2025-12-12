@@ -18,9 +18,13 @@ import {
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { Switch } from "@/components/ui/switch";
+import { BatchManager, Batch } from "@/components/organizer/batch-manager";
 
 export default function CriarEventoPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [resaleEnabled, setResaleEnabled] = useState(true);
+    const [batches, setBatches] = useState<Batch[]>([]);
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
 
@@ -45,6 +49,21 @@ export default function CriarEventoPage() {
         const eventTime = formData.get("event_time") as string;
         const eventDateTime = `${eventDate}T${eventTime}:00`;
 
+        if (batches.length === 0) {
+            toast.error("Adicione pelo menos um lote de ingressos");
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Validate batches
+        for (const batch of batches) {
+            if (!batch.name || !batch.price || !batch.quantity || !batch.endDate) {
+                toast.error("Preencha todas as informações dos lotes");
+                setIsSubmitting(false);
+                return;
+            }
+        }
+
         const eventData = {
             organizer_id: user.id,
             title: formData.get("title"),
@@ -53,23 +72,43 @@ export default function CriarEventoPage() {
             location: formData.get("location"),
             status: formData.get("status") || "draft",
             image_url: formData.get("image_url") || null,
+            resale_enabled: resaleEnabled,
         };
 
-        const { data, error } = await supabase
+        const { data: event, error: eventError } = await supabase
             .from("events")
             .insert(eventData)
             .select()
             .single();
 
-        if (error) {
-            console.error("Error creating event:", error);
-            toast.error(`Erro ao criar evento: ${error.message}`);
+        if (eventError) {
+            console.error("Error creating event:", eventError);
+            toast.error(`Erro ao criar evento: ${eventError.message}`);
             setIsSubmitting(false);
             return;
         }
 
-        toast.success("Evento criado com sucesso!");
-        router.push(`/organizer/eventos/${data.id}/editar`);
+        // Insert Batches
+        const batchesData = batches.map(batch => ({
+            event_id: event.id,
+            name: batch.name,
+            price: parseFloat(batch.price),
+            quantity: parseInt(batch.quantity),
+            end_date: new Date(batch.endDate).toISOString(),
+        }));
+
+        const { error: batchError } = await supabase
+            .from("ticket_batches")
+            .insert(batchesData);
+
+        if (batchError) {
+            console.error("Error creating batches:", batchError);
+            toast.error("Evento criado, mas houve erro ao salvar os lotes.");
+            // Optional: delete event or allow retry?
+        }
+
+        toast.success("Evento e lotes criados com sucesso!");
+        router.push(`/organizer/eventos`);
     }
 
     return (
@@ -161,9 +200,25 @@ export default function CriarEventoPage() {
                                 type="url"
                                 placeholder="https://exemplo.com/imagem.jpg"
                             />
-                            <p className="text-xs text-muted-foreground">
-                                Cole o link de uma imagem de capa para o evento
-                            </p>
+                        </div>
+
+                        {/* Resale Toggle */}
+                        <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm bg-gray-50/50">
+                            <div className="space-y-0.5">
+                                <Label className="text-base font-semibold text-gray-900">Revenda de Ingressos</Label>
+                                <p className="text-sm text-gray-500">
+                                    Permitir que usuários revendam seus ingressos na plataforma?
+                                </p>
+                            </div>
+                            <Switch
+                                checked={resaleEnabled}
+                                onCheckedChange={setResaleEnabled}
+                            />
+                        </div>
+
+                        {/* Batch Manager */}
+                        <div className="border-t pt-6">
+                            <BatchManager batches={batches} setBatches={setBatches} />
                         </div>
 
                         {/* Status */}
@@ -179,7 +234,7 @@ export default function CriarEventoPage() {
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">
-                                Você pode publicar o evento depois de adicionar os ingressos
+                                O evento começará a vender ingressos assim que a data de início do primeiro lote chegar.
                             </p>
                         </div>
 

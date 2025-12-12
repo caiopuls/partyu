@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { z } from "zod";
-import { Loader2, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, User, ArrowRight, PartyPopper } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const registerSchema = z
@@ -89,163 +89,168 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card className="w-full border-border/70 bg-card/80 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-      <CardContent className="space-y-6 p-6 sm:p-8">
-        <div className="space-y-2 text-left">
-          <h1 className="text-lg font-semibold tracking-tight">
-            Criar conta PartyU
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Centralize seus ingressos, revenda com segurança e receba em PIX.
-          </p>
-        </div>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 py-12">
+      <div className="w-full max-w-md">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground" htmlFor="name">
-              Nome completo
-            </label>
-            <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="name"
-                type="text"
-                placeholder="Como está no seu documento"
-                autoComplete="name"
-                className="h-9 pl-8 text-xs"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              />
-            </div>
+        {/* Signup Card */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm">
+          <div className="mb-6">
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">
+              Criar conta grátis
+            </h1>
+            <p className="text-sm text-gray-600">
+              Gerencie seus ingressos e revenda com segurança
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-foreground" htmlFor="email">
-              E-mail
-            </label>
-            <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="voce@exemplo.com"
-                autoComplete="email"
-                className="h-9 pl-8 text-xs"
-                value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label
-                className="text-xs font-medium text-foreground"
-                htmlFor="password"
-              >
-                Senha
+              <label className="text-sm font-semibold text-gray-900" htmlFor="name">
+                Nome completo
               </label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <User className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
-                  id="password"
-                  type="password"
-                  placeholder="Mínimo 6 caracteres"
-                  autoComplete="new-password"
-                  className="h-9 pl-8 text-xs"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, password: e.target.value }))
-                  }
+                  id="name"
+                  type="text"
+                  placeholder="Como está no seu documento"
+                  autoComplete="name"
+                  className="h-12 pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label
-                className="text-xs font-medium text-foreground"
-                htmlFor="confirmPassword"
-              >
-                Confirmar senha
+              <label className="text-sm font-semibold text-gray-900" htmlFor="email">
+                E-mail
               </label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repita a senha"
-                autoComplete="new-password"
-                className="h-9 text-xs"
-                value={form.confirmPassword}
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="voce@exemplo.com"
+                  autoComplete="email"
+                  className="h-12 pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label
+                  className="text-sm font-semibold text-gray-900"
+                  htmlFor="password"
+                >
+                  Senha
+                </label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    autoComplete="new-password"
+                    className="h-12 pl-10 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, password: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  className="text-sm font-semibold text-gray-900"
+                  htmlFor="confirmPassword"
+                >
+                  Confirmar senha
+                </label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Repita a senha"
+                  autoComplete="new-password"
+                  className="h-12 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+                  value={form.confirmPassword}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, confirmPassword: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 pt-2">
+              <input
+                id="terms"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                checked={!!form.acceptedTerms}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, confirmPassword: e.target.value }))
+                  setForm((f) => ({ ...f, acceptedTerms: e.target.checked }))
                 }
               />
+              <label
+                htmlFor="terms"
+                className="text-sm text-gray-600 leading-relaxed"
+              >
+                Concordo com os{" "}
+                <span className="font-semibold text-primary hover:underline cursor-pointer">
+                  Termos de uso
+                </span>{" "}
+                e a{" "}
+                <span className="font-semibold text-primary hover:underline cursor-pointer">
+                  Política de privacidade
+                </span>{" "}
+                da Partyu.
+              </label>
             </div>
-          </div>
 
-          <div className="flex items-start gap-2">
-            <input
-              id="terms"
-              type="checkbox"
-              className="mt-0.5 h-3.5 w-3.5 rounded border-border/80 text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              checked={!!form.acceptedTerms}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, acceptedTerms: e.target.checked }))
-              }
-            />
-            <label
-              htmlFor="terms"
-              className="text-[11px] text-muted-foreground leading-relaxed"
-            >
-              Concordo com os{" "}
-              <span className="font-medium text-primary underline-offset-2 hover:underline">
-                Termos de uso
-              </span>{" "}
-              e a{" "}
-              <span className="font-medium text-primary underline-offset-2 hover:underline">
-                Política de privacidade
-              </span>{" "}
-              da PartyU.
-            </label>
-          </div>
-
-          {error && (
-            <p className="text-xs font-medium text-destructive">{error}</p>
-          )}
-
-          <Button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Criando conta...
-              </>
-            ) : (
-              <>
-                Criar conta
-                <ArrowRight className="h-3.5 w-3.5" />
-              </>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm font-medium text-red-600">{error}</p>
+              </div>
             )}
-          </Button>
-        </form>
 
-        <p className="text-[11px] text-muted-foreground">
-          Já tem uma conta?{" "}
-          <button
-            type="button"
-            className="font-medium text-primary underline-offset-2 hover:underline"
-            onClick={() => router.push("/entrar")}
-          >
-            Entrar
-          </button>
-        </p>
-      </CardContent>
-    </Card>
+            <Button
+              type="submit"
+              className="flex w-full items-center cursor-pointer justify-center gap-2 h-12 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-all hover:scale-[1.02]"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Criando conta...
+                </>
+              ) : (
+                <>
+                  Criar conta
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-600">
+              Já tem uma conta?{" "}
+              <Link
+                href="/entrar"
+                className="font-bold text-primary hover:text-primary/80"
+              >
+                Entrar
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-
-

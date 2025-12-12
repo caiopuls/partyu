@@ -1,25 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Sora, Gochi_Hand } from "next/font/google";
 
 import "./globals.css";
-import { SiteFooter } from "@/components/layout/footer";
+import { FooterWrapper } from "@/components/layout/footer-wrapper";
 import { SiteHeader } from "@/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
+  weight: ["300", "400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const gochiHand = Gochi_Hand({
+  variable: "--font-gochi",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
   title: "PartyU — Ingressos e revenda segura para eventos",
   description:
     "PartyU é sua carteira digital de ingressos para festas, shows e festivais, com compra e revenda segura usando PIX.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -30,14 +35,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased`}
+        className={`${sora.variable} ${gochiHand.variable} bg-background text-foreground antialiased font-sans`}
       >
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1 bg-linear-to-b from-background via-background to-muted/60">
             {children}
           </main>
-          <SiteFooter />
+          <FooterWrapper />
         </div>
         <Toaster />
       </body>
