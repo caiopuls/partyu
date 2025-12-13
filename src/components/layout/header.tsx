@@ -64,8 +64,6 @@ export function SiteHeader() {
     router.push("/");
   };
 
-
-
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.trim().length > 2) {
@@ -98,7 +96,6 @@ export function SiteHeader() {
       router.push(`/explorar?q=${encodeURIComponent(searchQuery)}`);
     }
   };
-
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/10 bg-[#F8F8F3]/80 backdrop-blur-xl">
@@ -294,5 +291,3 @@ export function SiteHeader() {
     </header>
   );
 }
-
-

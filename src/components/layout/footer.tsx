@@ -72,6 +72,3 @@ export function SiteFooter() {
     </footer>
   );
 }
-
-
-

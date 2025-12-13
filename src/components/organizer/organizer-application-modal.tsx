@@ -73,14 +73,6 @@ export function OrganizerApplicationModal({
                     cpf_cnpj: values.cpfCnpj,
                     phone: values.phone,
                     bio: values.bio,
-                    role: "organizer", // Automatically upgrading for now as requested "ir pra analise" usually implies waiting, but user said "onde vai para um modal... para preencher... para ir pra analise". I'll set role to 'organizer' or keep 'user' and set status 'pending'.
-                    // Schema has 'status' TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')).
-                    // And 'role'.
-                    // I will set status to 'pending' and maybe role to 'organizer' so they can see the dashboard but explicitly 'pending'?
-                    // Actually schema says: role TEXT DEFAULT 'user'.
-                    // I'll update status to 'pending' and keep role as is, or set role to 'organizer' and status 'pending'.
-                    // To access /organizer routes, they likely need 'organizer' role.
-                    // I'll set role='organizer' and status='pending'.
                     status: "pending",
                     role: "organizer",
                 })

@@ -1,0 +1,35 @@
+==========================================
+DIMENSÕES EXATAS PARA RECORTAR O LOGO
+==========================================
+
+SVG Original:
+- Largura total: 784pt
+- Altura total: 1168pt
+
+CONTEÚDO ÚTIL DO LOGO:
+- X inicial: 108.3pt
+- Y inicial: 577.3pt  
+- Largura útil: 554.5pt
+- Altura útil: 102.2pt
+
+VIEWBOX PARA RECORTE:
+viewBox="108.3 577.3 554.5 102.2"
+
+DIMENSÕES FINAIS:
+- Largura: 554.5pt (~196px se usar 36px de altura)
+- Altura: 102.2pt (~36px - mesma altura do logo original)
+
+PROPORÇÃO:
+- Largura : Altura = 554.5 : 102.2 ≈ 5.4 : 1
+
+PARA MANTER 36px DE ALTURA:
+- Largura deve ser: ~195px
+- Altura: 36px
+
+INSTRUÇÕES:
+1. Abra o SVG no editor de sua escolha (Inkscape, Illustrator, etc)
+2. Use o viewBox: "108.3 577.3 554.5 102.2"
+3. Ou recorte visualmente mantendo essas proporções
+4. Salve substituindo o arquivo atual
+
+O SVG já foi atualizado com essas dimensões!
