@@ -274,15 +274,40 @@ export function SiteHeader() {
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 bg-white">
-              {/* Mobile Menu Content - simplified for now */}
-              <SheetHeader className="text-left">
-                <SheetTitle className="text-primary font-bold text-xl">Partyu</SheetTitle>
+            <SheetContent side="right" className="w-72 bg-white p-6">
+              {/* Mobile Menu Content */}
+              <SheetHeader className="text-left pb-6 border-b">
+                <SheetTitle className="sr-only">Partyu</SheetTitle>
+                <Link href="/" className="inline-block">
+                  <Image
+                    src="/assets/logoheader.svg"
+                    alt="Partyu Logo"
+                    width={120}
+                    height={32}
+                    className="h-8 w-auto"
+                    unoptimized
+                  />
+                </Link>
               </SheetHeader>
-              <div className="flex flex-col gap-4 mt-6">
-                <Link href="/explorar" className="text-lg font-medium">Eventos</Link>
-                <Link href="/gerenciar" className="text-lg font-medium">Gerenciar</Link>
-                <Link href="/entrar" className="text-lg font-medium">Sua Conta</Link>
+              <div className="flex flex-col gap-2 mt-6">
+                <Link 
+                  href="/explorar" 
+                  className="text-base font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Eventos
+                </Link>
+                <Link 
+                  href="/gerenciar" 
+                  className="text-base font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Gerenciar
+                </Link>
+                <Link 
+                  href="/entrar" 
+                  className="text-base font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Sua Conta
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

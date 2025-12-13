@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getEventsByRegion } from "@/lib/supabase/queries";
 import { EventsCarousel } from "@/components/events/events-carousel";
+import { HeroEventsCarousel } from "@/components/events/hero-events-carousel";
 
 export default async function Home() {
   const events = await getEventsByRegion(undefined, undefined, 10);
+  const heroEvents = events.slice(0, 5); // Primeiros 5 eventos para o carrossel hero
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -54,17 +56,9 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Right Image */}
+            {/* Right Carousel */}
             <div className="relative animate-[fadeInUp_1s_ease-out]">
-              <div className="aspect-[4/3] w-full rounded-3xl relative overflow-hidden">
-                <Image
-                  src="/assets/heroimage.png"
-                  alt="PartyU Hero"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
+              <HeroEventsCarousel events={heroEvents} />
             </div>
 
           </div>

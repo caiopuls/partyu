@@ -89,8 +89,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#F8F8F3] flex items-center justify-center p-4 pt-0 pb-6 md:pb-8">
+      <div className="w-full max-w-lg">
 
         {/* Signup Card */}
         <div className="bg-white rounded-2xl p-8 shadow-sm">

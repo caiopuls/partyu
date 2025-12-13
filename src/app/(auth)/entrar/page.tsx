@@ -54,21 +54,21 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#F8F8F3] flex items-center justify-center p-4 pt-0 pb-6 md:pb-8">
+      <div className="w-full max-w-lg">
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm">
-          <div className="mb-6">
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">
+        <div className="bg-white rounded-2xl p-8 md:p-10 lg:p-12 shadow-sm">
+          <div className="mb-8 md:mb-10">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
               Bem-vindo de volta!
             </h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-base md:text-lg text-gray-600">
               Entre para acessar seus ingressos e carteira
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-900" htmlFor="email">
                 E-mail
