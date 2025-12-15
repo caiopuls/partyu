@@ -40,10 +40,20 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <h3 className="font-bold text-gray-900 text-sm">Redes sociais</h3>
             <div className="flex gap-4">
-              <Link href="#" className="text-gray-400 hover:text-primary transition-colors">
+              <Link 
+                href="https://www.instagram.com/partyubr_/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary transition-colors"
+                aria-label="Instagram da PartyU"
+              >
                 <Instagram className="h-5 w-5" />
               </Link>
-              <Link href="#" className="text-gray-400 hover:text-primary transition-colors">
+              <Link 
+                href="#" 
+                className="text-gray-400 hover:text-primary transition-colors"
+                aria-label="YouTube da PartyU"
+              >
                 <Youtube className="h-5 w-5" />
               </Link>
             </div>
@@ -53,7 +63,8 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <h3 className="font-bold text-gray-900 text-sm">Legal e Termos</h3>
             <div className="flex flex-col gap-3 text-sm text-gray-600">
-              <span className="opacity-60">Em breve</span>
+              <Link href="/termos" className="hover:text-primary transition-colors">Termos de Uso</Link>
+              <Link href="/politica-privacidade" className="hover:text-primary transition-colors">Política de Privacidade</Link>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, DollarSign, Ticket, TrendingUp, Users, BarChart3 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 
 export default async function OrganizerDashboardPage() {
     const supabase = await createSupabaseServerClient();
@@ -152,12 +153,12 @@ export default async function OrganizerDashboardPage() {
                     <CardContent>
                         <ul className="space-y-3 text-sm">
                             {eventsCount === 0 && (
-                                <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                                <Link href="/organizer/eventos" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
                                     <div className="p-1.5 bg-primary/10 rounded-md">
                                         <Calendar className="h-4 w-4 text-primary" />
                                     </div>
                                     <span className="font-medium text-gray-700">Crie seu primeiro evento</span>
-                                </li>
+                                </Link>
                             )}
                             {(wallet?.balance || 0) > 5000 && (
                                 <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
