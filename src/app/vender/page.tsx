@@ -12,7 +12,7 @@ export default function VenderPage() {
             <section className="relative overflow-hidden bg-[#F8F8F3] py-20 lg:py-32">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-4xl">
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 px-4 py-1.5 text-sm font-bold border-none">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold border-none !whitespace-normal w-full sm:w-auto max-w-full">
                             Para Organizadores, Fraternidades, Casas de Festa e Eventos
                         </Badge>
                         <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-none tracking-tight">
