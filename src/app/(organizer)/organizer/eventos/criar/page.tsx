@@ -16,15 +16,18 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
-import { BatchManager, Batch } from "@/components/organizer/batch-manager";
+import { TicketTypeManager, TicketType } from "@/components/organizer/ticket-type-manager";
 
 export default function CriarEventoPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [resaleEnabled, setResaleEnabled] = useState(true);
-    const [batches, setBatches] = useState<Batch[]>([]);
+    const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [uploadingImage, setUploadingImage] = useState(false);
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
 
@@ -49,29 +52,71 @@ export default function CriarEventoPage() {
         const eventTime = formData.get("event_time") as string;
         const eventDateTime = `${eventDate}T${eventTime}:00`;
 
-        if (batches.length === 0) {
-            toast.error("Adicione pelo menos um lote de ingressos");
+        if (ticketTypes.length === 0) {
+            toast.error("Adicione pelo menos uma categoria de ingresso");
             setIsSubmitting(false);
             return;
         }
 
-        // Validate batches
-        for (const batch of batches) {
-            if (!batch.name || !batch.price || !batch.quantity || !batch.endDate) {
-                toast.error("Preencha todas as informações dos lotes");
+        // Validate ticket types and batches
+        for (const ticketType of ticketTypes) {
+            if (!ticketType.name || ticketType.name.trim() === "") {
+                toast.error("Preencha o nome de todas as categorias de ingresso");
                 setIsSubmitting(false);
                 return;
             }
+            if (ticketType.batches.length === 0) {
+                toast.error(`A categoria "${ticketType.name}" precisa ter pelo menos um lote`);
+                setIsSubmitting(false);
+                return;
+            }
+            for (const batch of ticketType.batches) {
+                if (!batch.quantity || !batch.price) {
+                    toast.error(`Preencha quantidade e preço de todos os lotes da categoria "${ticketType.name}"`);
+                    setIsSubmitting(false);
+                    return;
+                }
+            }
         }
 
+        const location = formData.get("location") as string;
+        
+        // Parse location: "Arena Parque, São Paulo - SP" -> venue="Arena Parque", city="São Paulo", state="SP"
+        let venue = location;
+        let city = "";
+        let state = "";
+        
+        if (location) {
+            const parts = location.split(",");
+            if (parts.length >= 2) {
+                venue = parts[0].trim();
+                const cityState = parts[1].trim();
+                const cityStateMatch = cityState.match(/^(.+?)\s*-\s*([A-Z]{2})$/);
+                if (cityStateMatch) {
+                    city = cityStateMatch[1].trim();
+                    state = cityStateMatch[2].trim().toUpperCase();
+                } else {
+                    city = cityState;
+                    state = "";
+                }
+            } else {
+                city = location;
+            }
+        }
+        
         const eventData = {
             organizer_id: user.id,
             title: formData.get("title"),
             description: formData.get("description"),
             event_date: eventDateTime,
-            location: formData.get("location"),
+            city: city || "Não informado",
+            state: state || "SP",
+            venue: venue || null,
+            address: null,
+            category: formData.get("category") || "Festas",
             status: formData.get("status") || "draft",
-            image_url: formData.get("image_url") || null,
+            banner_url: imageUrl || null,
+            featured_image_url: imageUrl || null,
             resale_enabled: resaleEnabled,
         };
 
@@ -88,26 +133,59 @@ export default function CriarEventoPage() {
             return;
         }
 
-        // Insert Batches
-        const batchesData = batches.map(batch => ({
-            event_id: event.id,
-            name: batch.name,
-            price: parseFloat(batch.price),
-            quantity: parseInt(batch.quantity),
-            end_date: new Date(batch.endDate).toISOString(),
-        }));
-
-        const { error: batchError } = await supabase
-            .from("ticket_batches")
-            .insert(batchesData);
-
-        if (batchError) {
-            console.error("Error creating batches:", batchError);
-            toast.error("Evento criado, mas houve erro ao salvar os lotes.");
-            // Optional: delete event or allow retry?
+        // Insert Ticket Types with Batches
+        // Cada lote vira um event_ticket_type com lot_number sequencial
+        const ticketTypesData: any[] = [];
+        
+        for (const ticketType of ticketTypes) {
+            for (const batch of ticketType.batches) {
+                ticketTypesData.push({
+                    event_id: event.id,
+                    name: ticketType.name,
+                    description: ticketType.description || null,
+                    price: parseFloat(batch.price) * 100, // Convert to cents
+                    total_quantity: parseInt(batch.quantity),
+                    lot_number: batch.lotNumber,
+                    status: "active",
+                });
+            }
         }
 
-        toast.success("Evento e lotes criados com sucesso!");
+        const { error: ticketTypesError } = await supabase
+            .from("event_ticket_types")
+            .insert(ticketTypesData);
+
+        if (ticketTypesError) {
+            console.error("Error creating ticket types:", ticketTypesError);
+            toast.error("Evento criado, mas houve erro ao salvar os tipos de ingresso.");
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Se houver arquivo para upload, fazer upload agora que temos o event_id
+        if (imageFile) {
+            try {
+                const uploadFormData = new FormData();
+                uploadFormData.append("event_id", event.id);
+                uploadFormData.append("image", imageFile);
+
+                const uploadResponse = await fetch("/api/events/upload-image", {
+                    method: "POST",
+                    body: uploadFormData,
+                });
+
+                if (!uploadResponse.ok) {
+                    const errorData = await uploadResponse.json();
+                    console.error("Error uploading image:", errorData);
+                    toast.error(`Evento criado, mas houve erro ao fazer upload da imagem: ${errorData.error || "Erro desconhecido"}`);
+                }
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                toast.error("Evento criado, mas houve erro ao fazer upload da imagem.");
+            }
+        }
+
+        toast.success("Evento e categorias de ingresso criados com sucesso!");
         router.push(`/organizer/eventos`);
     }
 
@@ -191,15 +269,98 @@ export default function CriarEventoPage() {
                             />
                         </div>
 
-                        {/* Image URL */}
+                        {/* Category */}
                         <div className="space-y-2">
-                            <Label htmlFor="image_url">URL da Imagem (opcional)</Label>
-                            <Input
-                                id="image_url"
-                                name="image_url"
-                                type="url"
-                                placeholder="https://exemplo.com/imagem.jpg"
-                            />
+                            <Label htmlFor="category">Categoria *</Label>
+                            <Select name="category" required defaultValue="Festas">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione uma categoria" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Festas">Festas</SelectItem>
+                                    <SelectItem value="Shows">Shows</SelectItem>
+                                    <SelectItem value="Festivais">Festivais</SelectItem>
+                                    <SelectItem value="Eletrônica">Eletrônica</SelectItem>
+                                    <SelectItem value="Sertanejo">Sertanejo</SelectItem>
+                                    <SelectItem value="Trap & Rap">Trap & Rap</SelectItem>
+                                    <SelectItem value="Universitárias">Universitárias</SelectItem>
+                                    <SelectItem value="Teatro">Teatro</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                Selecione a categoria que melhor descreve seu evento
+                            </p>
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="space-y-2">
+                            <Label>Imagem do Evento (opcional)</Label>
+                            
+                            {!imagePreview ? (
+                                <label
+                                    htmlFor="image_file"
+                                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                                >
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                                        <p className="mb-2 text-sm text-gray-500">
+                                            <span className="font-semibold">Clique para fazer upload</span> ou arraste a imagem
+                                        </p>
+                                        <p className="text-xs text-gray-400">JPG até 10MB</p>
+                                    </div>
+                                    <input
+                                        id="image_file"
+                                        type="file"
+                                        accept="image/jpeg,image/jpg"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                // Validar tamanho (10MB)
+                                                const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+                                                if (file.size > MAX_SIZE) {
+                                                    toast.error("Arquivo muito grande. Tamanho máximo: 10MB");
+                                                    e.target.value = "";
+                                                    return;
+                                                }
+                                                
+                                                // Validar tipo (apenas JPG)
+                                                const allowedTypes = ["image/jpeg", "image/jpg"];
+                                                if (!allowedTypes.includes(file.type)) {
+                                                    toast.error("Tipo de arquivo não permitido. Use apenas JPG");
+                                                    e.target.value = "";
+                                                    return;
+                                                }
+                                                
+                                                setImageFile(file);
+                                                setImagePreview(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                    />
+                                </label>
+                            ) : (
+                                <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="absolute top-2 right-2 bg-white/90 hover:bg-white border-red-200 text-red-600 hover:text-red-700"
+                                        onClick={() => {
+                                            setImageFile(null);
+                                            setImagePreview(null);
+                                            const fileInput = document.getElementById("image_file") as HTMLInputElement;
+                                            if (fileInput) fileInput.value = "";
+                                        }}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Resale Toggle */}
@@ -216,9 +377,9 @@ export default function CriarEventoPage() {
                             />
                         </div>
 
-                        {/* Batch Manager */}
+                        {/* Ticket Type Manager */}
                         <div className="border-t pt-6">
-                            <BatchManager batches={batches} setBatches={setBatches} />
+                            <TicketTypeManager ticketTypes={ticketTypes} setTicketTypes={setTicketTypes} />
                         </div>
 
                         {/* Status */}

@@ -246,6 +246,7 @@ export default async function EventPage({
                   ticketTypes.map((ticketType) => {
                     const available = ticketType.total_quantity - ticketType.sold_quantity;
                     const isSoldOut = available <= 0;
+                    const priceInReais = ticketType.price / 100; // Convert from cents
 
                     return (
                       <div
@@ -255,16 +256,21 @@ export default async function EventPage({
                         <div className="flex justify-between items-start mb-3">
                           <div>
                             <h3 className="font-bold text-gray-900">{ticketType.name}</h3>
+                            {(ticketType.lot_number ?? 1) > 1 && (
+                              <span className="inline-block ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded">
+                                Lote {ticketType.lot_number ?? 1}
+                              </span>
+                            )}
                             {ticketType.description && (
                               <p className="text-xs text-gray-500 mt-1">{ticketType.description}</p>
                             )}
                           </div>
                           <div className="text-right">
                             <p className="text-lg font-bold text-gray-900">
-                              R$ {ticketType.price.toFixed(2).replace(".", ",")}
+                              R$ {priceInReais.toFixed(2).replace(".", ",")}
                             </p>
                             <p className="text-[10px] text-gray-500">
-                              + taxa R$ {((ticketType.price * ticketType.platform_fee_percentage) / 100).toFixed(2).replace(".", ",")}
+                              + taxa R$ {((priceInReais * ticketType.platform_fee_percentage) / 100).toFixed(2).replace(".", ",")}
                             </p>
                           </div>
                         </div>

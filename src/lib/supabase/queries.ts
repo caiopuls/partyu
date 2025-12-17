@@ -82,19 +82,69 @@ export async function getEventById(id: string) {
 export async function getEventTicketTypes(eventId: string) {
   const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase
+  // Buscar todos os tipos de ingresso ativos
+  const { data: allTicketTypes, error } = await supabase
     .from("event_ticket_types")
     .select("*")
     .eq("event_id", eventId)
     .eq("status", "active")
-    .order("price", { ascending: true });
+    .order("name", { ascending: true })
+    .order("lot_number", { ascending: true });
 
   if (error) {
     console.error("Error fetching ticket types:", error);
     return [];
   }
 
-  return data as EventTicketType[];
+  if (!allTicketTypes || allTicketTypes.length === 0) {
+    return [];
+  }
+
+  // Agrupar por nome (categoria) e selecionar apenas o lote ativo
+  // O lote ativo é o primeiro lote que ainda tem ingressos disponíveis
+  const activeTicketTypes: EventTicketType[] = [];
+  const categories = new Map<string, EventTicketType[]>();
+
+  // Agrupar por categoria (name)
+  for (const ticketType of allTicketTypes) {
+    const category = ticketType.name;
+    if (!categories.has(category)) {
+      categories.set(category, []);
+    }
+    categories.get(category)!.push(ticketType as EventTicketType);
+  }
+
+  // Para cada categoria, encontrar o lote ativo (primeiro que não está esgotado)
+  for (const [category, lots] of categories) {
+    // Ordenar lotes por lot_number (garantir que lot_number existe, default = 1)
+    const sortedLots = lots.sort((a, b) => {
+      const lotA = a.lot_number ?? 1; // Compatibilidade: eventos antigos podem ter null
+      const lotB = b.lot_number ?? 1;
+      return lotA - lotB;
+    });
+    
+    // Se há apenas um lote (eventos antigos), retornar diretamente
+    if (sortedLots.length === 1) {
+      activeTicketTypes.push(sortedLots[0]);
+      continue;
+    }
+    
+    // Para múltiplos lotes: encontrar o primeiro lote que ainda tem ingressos disponíveis
+    const activeLot = sortedLots.find(
+      (lot) => (lot.sold_quantity ?? 0) < (lot.total_quantity ?? 0)
+    );
+
+    // Se encontrou um lote ativo, adicionar; senão, adicionar o último lote (esgotado)
+    if (activeLot) {
+      activeTicketTypes.push(activeLot);
+    } else if (sortedLots.length > 0) {
+      // Se todos estão esgotados, mostrar o último lote (para indicar que está esgotado)
+      activeTicketTypes.push(sortedLots[sortedLots.length - 1]);
+    }
+  }
+
+  // Ordenar por preço para exibição
+  return activeTicketTypes.sort((a, b) => a.price - b.price);
 }
 
 export async function getFeaturedEvents(limit = 5) {

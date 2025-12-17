@@ -36,6 +36,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validar tamanho do arquivo (máximo 10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB em bytes
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "Arquivo muito grande. Tamanho máximo: 10MB" },
+        { status: 400 },
+      );
+    }
+
+    // Validar tipo de arquivo (apenas JPG)
+    const allowedTypes = ["image/jpeg", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Tipo de arquivo não permitido. Use apenas JPG" },
+        { status: 400 },
+      );
+    }
+
     // Verificar permissão: admin pode tudo; organizador do evento também
     const { data: profile } = await supabase
       .from("profiles")
